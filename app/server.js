@@ -36,7 +36,8 @@ controller.setupWebserver(process.env.PORT || 3001, (err, webserver) => {
 controller.hears('^help$', ['direct_message', 'direct_mention', 'mention'], (bot, message) => {
   bot.reply(message, 'Say hello or hi to me, and I\'ll offer to make you a profile attachment with emojis and your favorite color!\n' +
   'Also, just let me know when you\'re hungry and you want to look for food and restaurants. I\'ll find the top 3 pics based on distance or rating, your choice :)\n' +
-  'But I\'m very impatient, so if you stay idle too long after messaging me, I\'ll get angry and hurry you up. ');
+  'But I\'m very impatient, so if you stay idle too long after messaging me, I\'ll get angry and hurry you up. \n' +
+  'Also, I can show you maps of where the restaurant is located using google maps!');
 });
 
 
@@ -167,7 +168,7 @@ var search = function (convo, region, term, sortPref, bot) {
 // google maps
 // cite: src template taken from https://www.npmjs.com/package/googlemaps and googlemaps api documentation
 var publicConfig = {
-  key: 'AIzaSyBn1BNnPnVOzB56pNS5hO-AL1mtTDxFGqo',
+  key: 'AIzaSyBYl7M-tyZ7o51lwSvcsnGXh9Z3O5AlvgM',
   stagger_time: 1000, // for elevationPath
   encode_polylines: false,
   secure: true, // use https
@@ -333,9 +334,4 @@ controller.on('direct_message', (bot, message) => {
 controller.on('outgoing_webhook', (bot, message) => {
   console.log('here');
   bot.replyPublic(message, 'ya I\'m , awake');
-});
-
-controller.on('message_received', (bot, message) => {
-  // clearTimeout(myTimer);
-  // myTimer = setTimeout(checkup, 10000);
 });
