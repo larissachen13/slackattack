@@ -31,6 +31,14 @@ controller.setupWebserver(process.env.PORT || 3001, (err, webserver) => {
   });
 });
 
+// help
+controller.hears('^help$', ['direct_message', 'direct_mention', 'mention'], (bot, message) => {
+  bot.reply(message, 'Say hello or hi to me, and I\'ll offer to make you a profile attachment with emojis and your favorite color!\n' +
+  'Also, just let me know when you\'re hungry and you want to look for food and restaurants. I\'ll find the top 3 pics based on distance or rating, your choice :)\n' +
+  'But I\'m very impatient, so if you stay idle too long after messaging me, I\'ll get angry and hurry you up. ');
+});
+
+
 // yelp functionality
 controller.hears(['hungry', 'food', 'restaurant'], ['direct_message', 'direct_mention', 'mention'], (bot, message) => {
   bot.startConversation(message, (response, convo) => {
@@ -134,8 +142,9 @@ var search = function (convo, region, term, sortPref) {
     });
 };
 
-let username;
+
 // conversation
+let username;
 controller.hears(['hello', 'hi', 'howdy'], 'direct_message', (bot, message) => {
   bot.api.users.info({ user: message.user }, (err, res) => {
     if (res) {
@@ -236,14 +245,11 @@ controller.hears('^now$', 'direct_message', (bot, message) => {
   });
 });
 
-controller.on('user_typing', (bot, message) => {
-});
-
 let timer;
 controller.on('direct_message', (bot, message) => {
   clearTimeout(timer);
   timer = setTimeout(() => {
-    bot.reply(message, 'You haven\'t said anything in a while, is everything ok?\n Type @lcbot help for help');
+    bot.reply(message, 'You haven\'t said anything in a while. I don\'t have too much time to waste.\n Type @lcbot help for help');
   }, 9000);
 });
 
