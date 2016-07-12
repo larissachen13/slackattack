@@ -247,6 +247,11 @@ controller.on('direct_message', (bot, message) => {
   }, 9000);
 });
 
+// wake up
+controller.on('outgoing_webhook', (bot, message) => {
+  bot.replyPublic(message, 'ya I\'m , awake');
+});
+
 controller.on('message_received', (bot, message) => {
   // clearTimeout(myTimer);
   // myTimer = setTimeout(checkup, 10000);
