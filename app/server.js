@@ -331,6 +331,7 @@ controller.on('direct_message', (bot, message) => {
 
 // wake up
 controller.on('outgoing_webhook', (bot, message) => {
+  console.log('here');
   bot.replyPublic(message, 'ya I\'m , awake');
 });
 
