@@ -1,6 +1,7 @@
 // example bot
 import botkit from 'botkit';
 var Yelp = require('yelp');
+var GoogleMapsAPI = require('googlemaps');
 
 var yelp = new Yelp({
   consumer_key: 'GFf1qOejeG0y1BhU4gP3Sg',
@@ -89,7 +90,7 @@ var askSearch = function (response, convo, region, term, bot) {
     {
       pattern: bot.utterances.yes,
       callback(response) {
-        search(convo, region, term, 1);
+        search(convo, region, term, 1, bot);
         convo.next();
       },
     },
@@ -100,7 +101,7 @@ var askSearch = function (response, convo, region, term, bot) {
           {
             pattern: bot.utterances.yes,
             callback(response) {
-              search(convo, region, term, 2);
+              search(convo, region, term, 2, bot);
             },
           },
           {
@@ -118,7 +119,7 @@ var askSearch = function (response, convo, region, term, bot) {
   ]);
 };
 
-var search = function (convo, region, term, sortPref) {
+var search = function (convo, region, term, sortPref, bot) {
   yelp.search({ term, location: region, limit: 3, sort: 1 })
     .then(function (data) {
       data.businesses.forEach(business => {
@@ -136,12 +137,86 @@ var search = function (convo, region, term, sortPref) {
         console.log(business);
         convo.next();
       });
+      convo.next();
+      convo.ask('Do you want a map to the first result?', [
+        {
+          pattern: bot.utterances.yes,
+          callback(response) {
+            const first = data.businesses[1];
+            const address = first.location.address + ' ' + first.location.city + ' ' + first.location.state_code;
+            console.log(address);
+            const latlong = first.location.coordinate.latitude + ',' + first.location.coordinate.latitude;
+            console.log(latlong);
+            getMap(bot, convo, address, latlong);
+          },
+        },
+        {
+          default: true,
+          callback(response) {
+            convo.say('Ok hope you got what you needed!');
+            convo.next();
+          },
+        },
+      ]);
     })
     .catch(function (err) {
       console.error(err);
     });
 };
 
+// google maps
+// cite: src template taken from https://www.npmjs.com/package/googlemaps and googlemaps api documentation
+var publicConfig = {
+  key: 'AIzaSyBn1BNnPnVOzB56pNS5hO-AL1mtTDxFGqo',
+  stagger_time: 1000, // for elevationPath
+  encode_polylines: false,
+  secure: true, // use https
+  proxy: 'http://127.0.0.1:9999', // optional, set a proxy for HTTP requests
+};
+var gmAPI = new GoogleMapsAPI(publicConfig);
+var getMap = function (bot, convo, address, latlong) {
+  var params = {
+    center: address,
+    zoom: 15,
+    size: '500x400',
+    maptype: 'roadmap',
+    markers: [
+      {
+        location: address,
+        label: 'A',
+        color: 'green',
+        shadow: true,
+      },
+      {
+        location: address,
+        icon: 'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=cafe%7C996600',
+      },
+    ],
+    style: [
+      {
+        feature: 'road',
+        element: 'all',
+        rules: {
+          hue: '0x00ff00',
+        },
+      },
+    ],
+  };
+  const mapURL = gmAPI.staticMap(params); // return static map URL
+  gmAPI.staticMap(params, function (err, binaryImage) {
+    convo.say({
+      text: 'Map',
+      attachments: [
+        {
+          title: 'Click for Map',
+          title_link: mapURL,
+          image_url: binaryImage,
+        },
+      ],
+    });
+    convo.next();
+  });
+};
 
 // conversation
 let username;
@@ -244,6 +319,7 @@ controller.hears('^now$', 'direct_message', (bot, message) => {
     convo.next();
   });
 });
+
 
 let timer;
 controller.on('direct_message', (bot, message) => {
