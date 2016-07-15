@@ -366,14 +366,18 @@ controller.hears('^now$', 'direct_message', (bot, message) => {
 Timer functionality
 
 If user initates a conversation by sending a direct message yet does not reply
-after 9 seconds a message by the bot prompts the user
+after 20 seconds a message by the bot prompts the user
+
+This also exits the conversation that the user was previously having with the user
+If a restaurant query conversation was taking place, and the user takes longer
+than 20 seconds to reply, the restaurant query conversation is exited
 */
 let timer;
 controller.on('direct_message', (bot, message) => {
   clearTimeout(timer);
   timer = setTimeout(() => {
     bot.reply(message, 'You haven\'t said anything in a while. I don\'t have too much time to waste.\n Type @lcbot help for help');
-  }, 9000);
+  }, 20000);
 });
 
 // wake up
